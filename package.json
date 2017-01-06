@@ -1,0 +1,22 @@
+{
+  "name": "unpack-textureatlas",
+  "version": "0.0.1",
+  "description": "The package template for getting started.",
+  "author": "Cocos Creator",
+  "main": "main.js",
+  "main-menu": {
+    "i18n:MAIN_MENU.package.title/unpack-textureatlas/open": {
+      "message": "unpack-textureatlas:open"
+    },
+    "i18n:MAIN_MENU.package.title/unpack-textureatlas/hello": {
+      "message": "unpack-textureatlas:say-hello"
+    }
+  },
+  "panel": {
+    "main": "panel/index.js",
+    "type": "dockable",
+    "title": "unpack-textureatlas",
+    "width": 400,
+    "height": 300
+  }
+}
