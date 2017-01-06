@@ -12,6 +12,7 @@ module.exports = {
   // register your ipc messages here
   messages: {
     'unpack' () {
+      
       let currentSelection = Editor.Selection.curSelection('asset');
       if (currentSelection.length > 0) {
         let selectionUUid = currentSelection[0];

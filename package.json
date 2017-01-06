@@ -8,8 +8,5 @@
     "i18n:MAIN_MENU.package.title/unpack-textureatlas/unpack": {
       "message": "unpack-textureatlas:unpack"
     }
-  },
-  "hosts": {
-    "CocosCreator": ">=1.4.0"
   }
 }
