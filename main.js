@@ -93,7 +93,7 @@ module.exports = {
 
             if (isRotated) {
               Sharp(textureAtlasPath).extract({left: rect.x, top: rect.y, width: rect.height, height:rect.width})
-                .background({r: 0, g: 0, b: 0, alpha: 0})
+                .background('rgba(0, 0, 0, 0)')
                 .extend({top: trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: trimmedRight})
                 .rotate(270)
                 .toFile(Path.join(extractImageSavePath, spriteFrameName), (err) => {
@@ -107,7 +107,7 @@ module.exports = {
 
             } else {
               Sharp(textureAtlasPath).extract({left: rect.x, top: rect.y, width: rect.width, height:rect.height})
-                .background({r: 0, g: 0, b: 0, alpha: 0})
+                .background('rgba(0, 0, 0, 0)')
                 .extend({top: trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: trimmedRight})
                 .rotate(0)
                 .toFile(Path.join(extractImageSavePath, spriteFrameName), (err) => {
