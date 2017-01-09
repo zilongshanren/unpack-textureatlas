@@ -38,8 +38,8 @@ module.exports = {
             && textureAtlasSubMetas) {
 
           var ss = Sharp(textureAtlasPath);
-          for (var spriteFrame in textureAtlasSubMetas) {
-            var spriteFrameObj = textureAtlasSubMetas[spriteFrame];
+          for (var spriteFrameName in textureAtlasSubMetas) {
+            var spriteFrameObj = textureAtlasSubMetas[spriteFrameName];
             Editor.log(spriteFrameObj);
 
             var isRotated = spriteFrameObj.rotated;
@@ -47,31 +47,27 @@ module.exports = {
             var rect = cc.rect(spriteFrameObj.trimX, spriteFrameObj.trimY, spriteFrameObj.width,spriteFrameObj.height);
             var offset = cc.p(spriteFrameObj.offsetX, spriteFrameObj.offsetY);
             var trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
+            var trimmedRight = offset.x - (originalSize.width - rect.width) / 2;
             var trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
+            var trimmedBottom = offset.y + (originalSize.height - rect.height) / 2;
 
+            var sharpOptioins = ss.extract({left: rect.x, top: rect.y, width: rect.width, height:rect.height})
+                .resize(originalSize.width, originalSize.height)
+                .background({r:0, g:0, b: 0, a: 0})
+                .extend({top: trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: trimmedRight});
 
-            if(!isRotated) {
-              this._reusedRect.x += (rect.x - trimmedLeft);
-              this._reusedRect.y += (rect.y + trimmedTop);
+            if (isRotated) {
+              sharpOptioins.rotate(270);
             } else {
-              var originalX = this._reusedRect.x;
-              this._reusedRect.x = rect.x + rect.height - this._reusedRect.y - this._reusedRect.height - trimmedTop;
-              this._reusedRect.y = originalX + rect.y - trimmedLeft;
-              if (this._reusedRect.y < 0) {
-                this._reusedRect.height = this._reusedRect.height + trimmedTop;
-              }
+              sharpOptioins.rotate(0);
             }
-          }
-          ss.extract({left: 0, top: 0, width: 100, height:100}).rotate(270).toFile(textureAtlasBaseName + "/test.png", (err) => {
-            if (err) Editor.error(err);
-            Editor.log("test.png is generated.");
-          });
-          ss.extract({left: 100, top: 100, width: 100, height:100}).rotate(270).toFile(textureAtlasBaseName + "/test2.png", (err) => {
-            if (err) Editor.error(err);
-            Editor.log("test2.png is generated.");
-          });
 
-          Editor.log("selection texture packer asset.");
+            sharpOptioins.toFile(textureAtlasBaseName + "/" + spriteFrameName, (err) => {
+              if (err) Editor.error(err);
+
+              Editor.log(spriteFrameName + " is generated.");
+            });
+          }
         } else {
           Editor.Dialog.messageBox({
             type: 'warning',
