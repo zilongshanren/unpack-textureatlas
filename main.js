@@ -30,6 +30,17 @@ module.exports = {
         let selectionMeta = Editor.assetdb.loadMetaByUuid(selectionUUid);
         let assetInfo = Editor.assetdb.assetInfoByUuid(selectionUUid);
         var textureAtlasPath = Editor.assetdb.uuidToFspath(selectionMeta.rawTextureUuid);
+        if (!textureAtlasPath) {
+          Editor.Dialog.messageBox({
+            type: 'warning',
+            buttons: ['OK'],
+            titile: 'Unpack Texture Packer Atlas',
+            message: 'Please select a Texture Packer asset at first!',
+            defaultId: 0,
+            noLink: true
+          });
+          return;
+        }
         var textureAtlasBaseName = Path.dirname(textureAtlasPath);
         var textureAtlasSubMetas = selectionMeta.getSubMetas();
       
@@ -52,11 +63,13 @@ module.exports = {
             var trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
             var trimmedBottom = offset.y + (originalSize.height - rect.height) / 2;
 
+            Editor.log(spriteFrameName + "\n");
+            Editor.log({left: trimmedLeft, right: trimmedRight, top: trimmedTop, bottom: trimmedBottom});
+
             if (isRotated) {
               Sharp(textureAtlasPath).extract({left: rect.x, top: rect.y, width: rect.height, height:rect.width})
-                .resize(originalSize.width, originalSize.height)
                 .background({r: 0, g: 0, b: 0, alpha: 0})
-                .extend({top: trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: trimmedRight})
+                .extend({top: -trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: -trimmedRight})
                 .rotate(270)
                 .toFile(extractImageSavePath + spriteFrameName, (err) => {
                   if (err) {
@@ -70,9 +83,8 @@ module.exports = {
 
             } else {
               Sharp(textureAtlasPath).extract({left: rect.x, top: rect.y, width: rect.width, height:rect.height})
-                .resize(originalSize.width, originalSize.height)
                 .background({r: 0, g: 0, b: 0, alpha: 0})
-                .extend({top: trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: trimmedRight})
+                .extend({top: -trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: -trimmedRight})
                 .rotate(0)
                 .toFile(extractImageSavePath + spriteFrameName, (err) => {
                   if (err) {
