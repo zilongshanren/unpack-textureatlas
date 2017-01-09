@@ -80,7 +80,7 @@ module.exports = {
             && selectionMeta.type === 'Texture Packer'
             && textureAtlasSubMetas) {
 
-          let extractImageSavePath = Path.join(Editor.projectPath, 'temp', Path.basenameNoExt(textureAtlasPath));
+          let extractImageSavePath = Path.join(Editor.projectPath, 'temp', Path.basenameNoExt(textureAtlasPath) + '_unpack');
           Fs.mkdirsSync(extractImageSavePath);
 
           let spriteFrameNames = Object.keys(textureAtlasSubMetas);
