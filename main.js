@@ -64,14 +64,14 @@ module.exports = {
             var rect = cc.rect(spriteFrameObj.trimX, spriteFrameObj.trimY, spriteFrameObj.width,spriteFrameObj.height);
             var offset = cc.p(spriteFrameObj.offsetX, spriteFrameObj.offsetY);
             var trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
-            var trimmedRight = offset.x - (originalSize.width - rect.width) / 2;
-            var trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
+            var trimmedRight = (originalSize.width - rect.width) / 2 - offset.x;
+            var trimmedTop = (originalSize.height - rect.height) / 2 - offset.y;
             var trimmedBottom = offset.y + (originalSize.height - rect.height) / 2;
 
             if (isRotated) {
               Sharp(textureAtlasPath).extract({left: rect.x, top: rect.y, width: rect.height, height:rect.width})
                 .background({r: 0, g: 0, b: 0, alpha: 0})
-                .extend({top: -trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: -trimmedRight})
+                .extend({top: trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: trimmedRight})
                 .rotate(270)
                 .toFile(Path.join(extractImageSavePath, spriteFrameName), (err) => {
                   if (err) {
@@ -85,7 +85,7 @@ module.exports = {
             } else {
               Sharp(textureAtlasPath).extract({left: rect.x, top: rect.y, width: rect.width, height:rect.height})
                 .background({r: 0, g: 0, b: 0, alpha: 0})
-                .extend({top: -trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: -trimmedRight})
+                .extend({top: trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: trimmedRight})
                 .rotate(0)
                 .toFile(Path.join(extractImageSavePath, spriteFrameName), (err) => {
                   if (err) {
