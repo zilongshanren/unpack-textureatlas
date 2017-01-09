@@ -56,6 +56,7 @@ module.exports = {
       if (currentSelection.length > 0) {
         let selectionUUid = currentSelection[0];
         let selectionMeta = Editor.assetdb.loadMetaByUuid(selectionUUid);
+        let selectionUrl = Editor.assetdb.uuidToUrl(selectionUUid);
         let assetInfo = Editor.assetdb.assetInfoByUuid(selectionUUid);
         var textureAtlasPath = Editor.assetdb.uuidToFspath(selectionMeta.rawTextureUuid);
         if (!textureAtlasPath) {
@@ -70,8 +71,8 @@ module.exports = {
           return;
         }
         var textureAtlasSubMetas = selectionMeta.getSubMetas();
-      
-        if (assetInfo.type === "sprite-atlas" 
+
+        if (assetInfo.type === "sprite-atlas"
             && selectionMeta.type === "Texture Packer"
             && textureAtlasSubMetas) {
 
@@ -121,7 +122,7 @@ module.exports = {
           }, () => {
             Editor.log(`There are ${spriteFrameNames.length} textures are generated!`);
             //start importing all the generated spriteframes
-            Editor.Ipc.sendToMain( 'asset-db:import-assets', [extractImageSavePath],  'db://assets/', true, (err) => {
+            Editor.Ipc.sendToMain( 'asset-db:import-assets', [extractImageSavePath],  Path.dirname(selectionUrl), true, (err) => {
               if (err) Editor.log('Importing assets error occurs: details' + err);
 
               Del(extractImageSavePath, { force: true });
@@ -149,8 +150,8 @@ module.exports = {
             noLink: true
           });
       }
-      
-     
+
+
     },
   },
 };
