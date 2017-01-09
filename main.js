@@ -1,8 +1,8 @@
 'use strict';
-// const Fs = require('fire-fs');
-// const Async = require('async');
-// const Os = require('os');
+const Fs = require('fire-fs');
 const Path = require('fire-path');
+const Async = require('async');
+
 var sharpPath;
 if (Editor.dev) {
   sharpPath = 'sharp';
@@ -37,37 +37,54 @@ module.exports = {
             && selectionMeta.type === "Texture Packer"
             && textureAtlasSubMetas) {
 
-          var ss = Sharp(textureAtlasPath);
-          for (var spriteFrameName in textureAtlasSubMetas) {
-            var spriteFrameObj = textureAtlasSubMetas[spriteFrameName];
-            Editor.log(spriteFrameObj);
+          var extractImageSavePath = textureAtlasBaseName + "/" + Path.basenameNoExt(textureAtlasPath) + "/";
+          Fs.mkdirsSync(extractImageSavePath);
 
-            var isRotated = spriteFrameObj.rotated;
-            var originalSize = cc.size(spriteFrameObj.rawWidth, spriteFrameObj.rawHeight);
-            var rect = cc.rect(spriteFrameObj.trimX, spriteFrameObj.trimY, spriteFrameObj.width,spriteFrameObj.height);
-            var offset = cc.p(spriteFrameObj.offsetX, spriteFrameObj.offsetY);
-            var trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
-            var trimmedRight = offset.x - (originalSize.width - rect.width) / 2;
-            var trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
-            var trimmedBottom = offset.y + (originalSize.height - rect.height) / 2;
+          var spriteFrameNames = Object.keys(textureAtlasSubMetas);
+          Editor.log("Sprite frame names" + spriteFrameNames);
+          var functionList = [];
+          spriteFrameNames.forEach(function (spriteFrameName) {
+            var next = () => {
+              var spriteFrameObj = textureAtlasSubMetas[spriteFrameName];
+              var isRotated = spriteFrameObj.rotated;
+              var originalSize = cc.size(spriteFrameObj.rawWidth, spriteFrameObj.rawHeight);
+              var rect = cc.rect(spriteFrameObj.trimX, spriteFrameObj.trimY, spriteFrameObj.width,spriteFrameObj.height);
+              var offset = cc.p(spriteFrameObj.offsetX, spriteFrameObj.offsetY);
+              var trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
+              var trimmedRight = offset.x - (originalSize.width - rect.width) / 2;
+              var trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
+              var trimmedBottom = offset.y + (originalSize.height - rect.height) / 2;
 
-            var sharpOptioins = ss.extract({left: rect.x, top: rect.y, width: rect.width, height:rect.height})
-                .resize(originalSize.width, originalSize.height)
-                .background({r:0, g:0, b: 0, a: 0})
-                .extend({top: trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: trimmedRight});
+              var ss = Sharp(textureAtlasPath);
+              var sharpOptioins = ss.extract({left: rect.x, top: rect.y, width: rect.width, height:rect.height})
+                  .resize(originalSize.width, originalSize.height)
+                  .background({r: 0, g: 0, b: 0, alpha: 0})
+                  .extend({top: trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: trimmedRight});
 
-            if (isRotated) {
-              sharpOptioins.rotate(270);
-            } else {
-              sharpOptioins.rotate(0);
-            }
+              if (isRotated) {
+                sharpOptioins.rotate(270);
+              } else {
+                sharpOptioins.rotate(0);
+              }
 
-            sharpOptioins.toFile(textureAtlasBaseName + "/" + spriteFrameName, (err) => {
-              if (err) Editor.error(err);
 
-              Editor.log(spriteFrameName + " is generated.");
-            });
-          }
+              sharpOptioins.toFile(extractImageSavePath + spriteFrameName, (err) => {
+                if (err) Editor.error(err);
+
+                Editor.log(spriteFrameName + " is generated.");
+              });
+            };
+
+            functionList.push(next);
+          });
+          Editor.log(functionList);
+
+          Async.series(functionList, (err) => {
+            if (err) Editor.error(err);
+
+            Editor.log("All textures have been extracted.");
+          });
+
         } else {
           Editor.Dialog.messageBox({
             type: 'warning',
