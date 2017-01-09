@@ -2,6 +2,7 @@
 const Fs = require('fire-fs');
 const Path = require('fire-path');
 const Async = require('async');
+const Del = require('del');
 
 var sharpPath;
 if (Editor.dev) {
@@ -46,14 +47,13 @@ module.exports = {
           });
           return;
         }
-        var textureAtlasBaseName = Path.dirname(textureAtlasPath);
         var textureAtlasSubMetas = selectionMeta.getSubMetas();
       
         if (assetInfo.type === "sprite-atlas" 
             && selectionMeta.type === "Texture Packer"
             && textureAtlasSubMetas) {
 
-          var extractImageSavePath = textureAtlasBaseName + "/" + Path.basenameNoExt(textureAtlasPath) + "/";
+          var extractImageSavePath = Path.join(Editor.projectPath, "temp", Path.basenameNoExt(textureAtlasPath));
           Fs.mkdirsSync(extractImageSavePath);
 
           var spriteFrameNames = Object.keys(textureAtlasSubMetas);
@@ -68,18 +68,14 @@ module.exports = {
             var trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
             var trimmedBottom = offset.y + (originalSize.height - rect.height) / 2;
 
-            Editor.log(spriteFrameName + "\n");
-            Editor.log({left: trimmedLeft, right: trimmedRight, top: trimmedTop, bottom: trimmedBottom});
-
             if (isRotated) {
               Sharp(textureAtlasPath).extract({left: rect.x, top: rect.y, width: rect.height, height:rect.width})
                 .background({r: 0, g: 0, b: 0, alpha: 0})
                 .extend({top: -trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: -trimmedRight})
                 .rotate(270)
-                .toFile(extractImageSavePath + spriteFrameName, (err) => {
+                .toFile(Path.join(extractImageSavePath, spriteFrameName), (err) => {
                   if (err) {
-                    Editor.error("Generating " + spriteFrameName + ", " + err);
-                    Editor.error({left: rect.x, top: rect.y, width: rect.width, height:rect.height});
+                    Editor.error("Generating " + spriteFrameName + " error occurs, details:" + err);
                   }
 
                   Editor.log(spriteFrameName + " is generated successfully!");
@@ -91,10 +87,9 @@ module.exports = {
                 .background({r: 0, g: 0, b: 0, alpha: 0})
                 .extend({top: -trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: -trimmedRight})
                 .rotate(0)
-                .toFile(extractImageSavePath + spriteFrameName, (err) => {
+                .toFile(Path.join(extractImageSavePath, spriteFrameName), (err) => {
                   if (err) {
-                    Editor.error("Generating " + spriteFrameName + ", " + err);
-                    Editor.error({left: rect.x, top: rect.y, width: rect.width, height:rect.height});
+                    Editor.error("Generating " + spriteFrameName + " error occurs, details:" + err);
                   }
 
                   Editor.log(spriteFrameName + " is generated successfully!");
@@ -103,7 +98,14 @@ module.exports = {
             }
           }, () => {
             Editor.log(`There are ${spriteFrameNames.length} textures are generated!`);
-          });
+            //start importing all the generated spriteframes
+            Editor.Ipc.sendToMain( 'asset-db:import-assets', [extractImageSavePath],  'db://assets/', true, (err) => {
+              if (err) Editor.log('Importing assets error occurs: details' + err);
+
+              Del(extractImageSavePath, { force: true });
+            }, -1);
+
+          }); // end of Async.forEach
 
         } else {
           Editor.Dialog.messageBox({
