@@ -23,7 +23,12 @@ module.exports = {
   // register your ipc messages here
   messages: {
     'unpack' () {
-      
+      Editor.Metrics.trackEvent({
+        category: 'Packages',
+        label: 'unpack-textureatlas',
+        action: 'Open By Menu'
+      }, null);
+
       let currentSelection = Editor.Selection.curSelection('asset');
       if (currentSelection.length > 0) {
         let selectionUUid = currentSelection[0];
