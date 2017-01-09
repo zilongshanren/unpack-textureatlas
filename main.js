@@ -120,7 +120,7 @@ module.exports = {
             }
           }, () => {
             Editor.log(`There are ${spriteFrameNames.length} textures are generated!`);
-            //start importing all the generated spriteframes
+            //start importing the generated textures folder
             Editor.Ipc.sendToMain( 'asset-db:import-assets', [extractImageSavePath], Path.dirname(selectionUrl), true, (err) => {
               if (err) Editor.log('Importing assets error occurs: details' + err);
 
