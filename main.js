@@ -110,14 +110,14 @@ module.exports = {
                 .background('rgba(0,0,0,0)')
                 .extend({top: trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: trimmedRight})
                 .rotate(270)
-                .toFile(extractedSmallPngSavePath);
+                .toFile(extractedSmallPngSavePath, sharpCallback);
 
             } else {
               Sharp(textureAtlasPath).extract({left: rect.x, top: rect.y, width: rect.width, height:rect.height})
                 .background('rgba(0,0,0,0)')
                 .extend({top: trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: trimmedRight})
                 .rotate(0)
-                .toFile(extractedSmallPngSavePath);
+                .toFile(extractedSmallPngSavePath, sharpCallback);
             }
           }, () => {
             Editor.log(`There are ${spriteFrameNames.length} textures are generated!`);
