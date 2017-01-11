@@ -80,8 +80,8 @@ module.exports = {
             && selectionMeta.type === 'Texture Packer'
             && textureAtlasSubMetas) {
 
-          let extractImageSavePath = Path.join(Editor.projectPath, 'temp', Path.basenameNoExt(textureAtlasPath) + '_unpack');
-          Fs.mkdirsSync(extractImageSavePath);
+          let extractedImageSaveFolder = Path.join(Editor.projectPath, 'temp', Path.basenameNoExt(textureAtlasPath) + '_unpack');
+          Fs.mkdirsSync(extractedImageSaveFolder);
 
           let spriteFrameNames = Object.keys(textureAtlasSubMetas);
           Async.forEach(spriteFrameNames, function (spriteFrameName, next) {
@@ -104,7 +104,7 @@ module.exports = {
               next();
             };
 
-            let extractedSmallPngSavePath = Path.join(extractImageSavePath, spriteFrameName);
+            let extractedSmallPngSavePath = Path.join(extractedImageSaveFolder, spriteFrameName);
             if (isRotated) {
               Sharp(textureAtlasPath).extract({left: rect.x, top: rect.y, width: rect.height, height:rect.width})
                 .background('rgba(0,0,0,0)')
@@ -122,10 +122,10 @@ module.exports = {
           }, () => {
             Editor.log(`There are ${spriteFrameNames.length} textures are generated!`);
             //start importing the generated textures folder
-            Editor.Ipc.sendToMain( 'asset-db:import-assets', [extractImageSavePath], Path.dirname(selectionUrl), true, (err) => {
+            Editor.Ipc.sendToMain( 'asset-db:import-assets', [extractedImageSaveFolder], Path.dirname(selectionUrl), true, (err) => {
               if (err) Editor.log('Importing assets error occurs: details' + err);
 
-              Del(extractImageSavePath, { force: true });
+              Del(extractedImageSaveFolder, { force: true });
             }, -1);
 
           }); // end of Async.forEach
