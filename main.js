@@ -79,8 +79,8 @@ module.exports = {
         if (assetInfo.type === 'sprite-atlas'
             && selectionMeta.type === 'Texture Packer'
             && textureAtlasSubMetas) {
-
-          let extractedImageSaveFolder = Path.join(Editor.projectPath, 'temp', Path.basenameNoExt(textureAtlasPath) + '_unpack');
+          // In Creator Editor version 2.2.2,use Editor.Project.path 
+          let extractedImageSaveFolder = Path.join(Editor.Project.path, 'temp', Path.basenameNoExt(textureAtlasPath) + '_unpack');
           Fs.mkdirsSync(extractedImageSaveFolder);
 
           let spriteFrameNames = Object.keys(textureAtlasSubMetas);
@@ -106,15 +106,16 @@ module.exports = {
 
             let extractedSmallPngSavePath = Path.join(extractedImageSaveFolder, spriteFrameName);
             if (isRotated) {
+              
               Sharp(textureAtlasPath).extract({left: rect.x, top: rect.y, width: rect.height, height:rect.width})
-                .background('rgba(0,0,0,0)')
+                // .background('rgba(0,0,0,0)') 
                 .extend({top: trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: trimmedRight})
                 .rotate(270)
                 .toFile(extractedSmallPngSavePath, sharpCallback);
 
             } else {
               Sharp(textureAtlasPath).extract({left: rect.x, top: rect.y, width: rect.width, height:rect.height})
-                .background('rgba(0,0,0,0)')
+                // .background('rgba(0,0,0,0)') -- In Creator Editor version 2.2.2,background is undefined
                 .extend({top: trimmedTop, bottom: trimmedBottom, left: trimmedLeft, right: trimmedRight})
                 .rotate(0)
                 .toFile(extractedSmallPngSavePath, sharpCallback);
